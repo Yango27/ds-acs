@@ -1,5 +1,7 @@
 package baseNoStates;
 
+import baseNoStates.doorstates.DoorState;
+import baseNoStates.doorstates.Unlocked;
 import baseNoStates.requests.RequestReader;
 import org.json.JSONObject;
 
@@ -7,10 +9,12 @@ import org.json.JSONObject;
 public class Door {
   private final String id;
   private boolean closed; // physically
+  private DoorState doorState;
 
   public Door(String id) {
     this.id = id;
     closed = true;
+    this.doorState = new Unlocked(this);
   }
 
   public void processRequest(RequestReader request) {
@@ -28,28 +32,19 @@ public class Door {
   private void doAction(String action) {
     switch (action) {
       case Actions.OPEN:
-        if (closed) {
-          closed = false;
-        } else {
-          System.out.println("Can't open door " + id + " because it's already open");
-        }
+        doorState.open();
         break;
       case Actions.CLOSE:
-        if (closed) {
-          System.out.println("Can't close door " + id + " because it's already closed");
-        } else {
-          closed = true;
-        }
+        doorState.close();
         break;
       case Actions.LOCK:
-        // TODO
-        // fall through
+        doorState.lock();
+        break;
       case Actions.UNLOCK:
-        // TODO
-        // fall through
+        doorState.unlock();
+        break;
       case Actions.UNLOCK_SHORTLY:
-        // TODO
-        System.out.println("Action " + action + " not implemented yet");
+        doorState.shortly_unlocked();
         break;
       default:
         assert false : "Unknown action " + action;
@@ -57,8 +52,16 @@ public class Door {
     }
   }
 
+  public void setState(DoorState doorState){
+    this.doorState = doorState;
+  }
+
   public boolean isClosed() {
     return closed;
+  }
+
+  public void setClosed(boolean closed) {
+    this.closed = closed;
   }
 
   public String getId() {
@@ -66,7 +69,7 @@ public class Door {
   }
 
   public String getStateName() {
-    return "unlocked";
+    return doorState.returnState();
   }
 
   @Override
