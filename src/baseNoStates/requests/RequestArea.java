@@ -7,6 +7,9 @@ import org.json.JSONObject;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
+import baseNoStates.areas.Area;
+import baseNoStates.Door;
+import baseNoStates.DirectoryAreas;
 
 public class RequestArea implements Request {
   private final String credential;
@@ -39,7 +42,7 @@ public class RequestArea implements Request {
       jsonRequests.put(rd.answerToJson());
     }
     json.put("requestsDoors", jsonRequests);
-    json.put("todo", "request areas not yet implemented");
+    json.put("requestsArea", new JSONArray(requests));
     return json;
   }
 
@@ -66,7 +69,6 @@ public class RequestArea implements Request {
   public void process() {
     // commented out until Area, Space and Partition are implemented
 
-    /*
     // make the door requests and put them into the area request to be authorized later and
     // processed later
     Area area = DirectoryAreas.findAreaById(areaId);
@@ -85,6 +87,6 @@ public class RequestArea implements Request {
         requests.add(requestReader);
       }
     }
-     */
+
   }
 }
