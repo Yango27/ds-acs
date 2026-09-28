@@ -37,6 +37,9 @@ public class Locked extends DoorState{
         System.out.println("Door " + super.door.getId() + " shortly unlocked!");
         super.door.setState(new Shortly_Unlocked(super.door));
 
+        //creating a thread to wait for 10 seconds after checking the door
+        //this is so the main thread (that executes the backend) doesn't freeze and can
+        //still responding to requests
         Thread thread = new Thread(() -> {
             try {
                 Thread.sleep(10000);
