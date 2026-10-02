@@ -44,7 +44,6 @@ public class Partition extends Area{
                 }
             }
         }
-        System.out.println("area with id " + areaId + " not found");
         return null;
     }
 }

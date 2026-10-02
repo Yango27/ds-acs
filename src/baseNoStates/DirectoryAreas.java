@@ -59,4 +59,8 @@ public final class DirectoryAreas {
     public static Door[] getAllDoors() {
         return allDoors;
     }
+
+    public static Area getRootArea() {
+        return rootArea;
+    }
 }

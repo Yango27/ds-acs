@@ -6,11 +6,11 @@ package baseNoStates;
 import baseNoStates.clock_observers.Clock;
 
 public class Main {
-  public static final Clock clock = new Clock(1);
+  public static final Clock clock = new Clock(1);  //we instanciate clock, it can be accessed from any class
   public static void main(String[] args) {
     DirectoryDoors.makeDoors();
-    DirectoryUsers.makeUsers();
     DirectoryAreas.makeAreas();
+    DirectoryUsers.makeUsers();
     clock.start();
     new WebServer();
   }

@@ -3,10 +3,11 @@ package baseNoStates.requests;
 import baseNoStates.DirectoryDoors;
 import baseNoStates.DirectoryUsers;
 import baseNoStates.Door;
-import baseNoStates.User;
+import baseNoStates.users.User;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
+import baseNoStates.users.UserGroup;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -80,7 +81,7 @@ public class RequestReader implements Request {
     User user = DirectoryUsers.findUserByCredential(credential);
     Door door = DirectoryDoors.findDoorById(doorId);
     assert door != null : "door " + doorId + " not found";
-    authorize(user, door);
+    authorize(user, door, action, now);
     // this sets the boolean authorize attribute of the request
     door.processRequest(this);
     // even if not authorized we process the request, so that if desired we could log all
@@ -90,14 +91,32 @@ public class RequestReader implements Request {
 
   // the result is put into the request object plus, if not authorized, why not,
   // only for testing
-  private void authorize(User user, Door door) {
+  private void authorize(User user, Door door, String action, LocalDateTime now) {
     if (user == null) {
       authorized = false;
       addReason("user doesn't exists");
     } else {
-      //TODO: get the who, where, when and what in order to decide, and if not
-      // authorized add the reason(s)
-      authorized = true;
+      UserGroup userGroup = DirectoryUsers.userGroups.get(0); //init with the blank group
+      //look for which userGroup is our user in
+      for (UserGroup g : DirectoryUsers.userGroups){
+        if (g.isUserInGroup(user)){
+          userGroup = g;
+        }
+      }
+      boolean timeValid = userGroup.canSendRequests(now);
+      boolean areaValid = userGroup.canBeInSpace(door.getId());
+      boolean actionValid = userGroup.canDoAction(action);
+
+      if (!timeValid){
+        reasons.add(new String("Time is not Valid"));
+      }
+      if (!areaValid){
+        reasons.add(new String("Area is not Valid"));
+      }
+      if (!actionValid){
+        reasons.add(new String("Action is not Valid"));
+      }
+      authorized = timeValid && areaValid && actionValid;
     }
   }
 }
