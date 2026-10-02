@@ -2,6 +2,8 @@ package baseNoStates.doorstates;
 
 import baseNoStates.Door;
 
+import java.time.LocalDateTime;
+
 public class Shortly_Unlocked extends DoorState{
     public Shortly_Unlocked(Door door){
         super(door);
@@ -45,5 +47,10 @@ public class Shortly_Unlocked extends DoorState{
     @Override
     public void shortly_unlocked() {
         System.out.println("Can't unlock door " + super.door.getId() + " because it's shortly unlocked");
+    }
+
+    @Override
+    public void update(LocalDateTime date) {
+
     }
 }

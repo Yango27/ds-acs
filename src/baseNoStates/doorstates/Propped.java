@@ -2,6 +2,8 @@ package baseNoStates.doorstates;
 
 import baseNoStates.Door;
 
+import java.time.LocalDateTime;
+
 public class Propped extends DoorState{
     public Propped(Door door){
         super(door);
@@ -38,5 +40,10 @@ public class Propped extends DoorState{
     @Override
     public void shortly_unlocked() {
         System.out.println("Can't shortly unlock door " + super.door.getId() + " because it's propped");
+    }
+
+    @Override
+    public void update(LocalDateTime date) {
+
     }
 }

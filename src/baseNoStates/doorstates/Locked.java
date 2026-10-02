@@ -1,7 +1,13 @@
 package baseNoStates.doorstates;
 import baseNoStates.Door;
+import baseNoStates.Main;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class Locked extends DoorState{
+    private LocalDateTime startDate;
+
     public Locked(Door door){
         super(door);
     }
@@ -37,24 +43,23 @@ public class Locked extends DoorState{
         System.out.println("Door " + super.door.getId() + " shortly unlocked!");
         super.door.setState(new Shortly_Unlocked(super.door));
 
-        //creating a thread to wait for 10 seconds after checking the door
-        //this is so the main thread (that executes the backend) doesn't freeze and can
-        //still responding to requests
-        Thread thread = new Thread(() -> {
-            try {
-                Thread.sleep(10000);
-                if (super.door.isClosed()){
-                    System.out.println("Door " + super.door.getId() + " is closed again!");
-                    super.door.setState(new Locked(super.door));
-                }
-                else{
-                    System.out.println("Door " + super.door.getId() + " is propped!");
-                    super.door.setState(new Propped(super.door));
-                }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+        Main.clock.addObserver(this); //add this object to observers, so clock notifies us about the time
+        startDate = LocalDateTime.now(); //set the time when the timer starts from, to now (so, from now on, it counts to 10)
+    }
+
+    @Override
+    public void update(LocalDateTime date) {
+        //if 10 secs has passed we check if the doors its opened or not, in order to locked it again
+        if (Duration.between(startDate, date).getSeconds() >= 10){
+            if (super.door.isClosed()){
+                System.out.println("Door " + super.door.getId() + " is locked again!");
+                super.door.setState(new Locked(super.door));
             }
-        });
-        thread.start();
+            else{
+                System.out.println("Door " + super.door.getId() + " is propped!");
+                super.door.setState(new Propped(super.door));
+            }
+            Main.clock.removeObserver(this);
+        }
     }
 }
