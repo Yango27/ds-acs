@@ -3,6 +3,7 @@ package baseNoStates;
 import baseNoStates.users.User;
 import baseNoStates.users.UserGroup;
 
+import javax.swing.*;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -71,9 +72,9 @@ public final class DirectoryUsers {
     UserGroup employees = new UserGroup(
             usersEmployees,
             new String[]{
-                    "unlock_shortly",
-                    "open",
-                    "close"
+                    Actions.UNLOCK_SHORTLY,
+                    Actions.OPEN,
+                    Actions.CLOSE
             },
             new DayOfWeek[]{
                     DayOfWeek.MONDAY,
@@ -111,11 +112,11 @@ public final class DirectoryUsers {
     UserGroup managers = new UserGroup(
             usersManagers,
             new String[]{
-                    "open",
-                    "close",
-                    "lock",
-                    "unlock",
-                    "unlock_shortly"
+                    Actions.OPEN,
+                    Actions.CLOSE,
+                    Actions.LOCK,
+                    Actions.UNLOCK,
+                    Actions.UNLOCK_SHORTLY
             },
             new DayOfWeek[]{
                     DayOfWeek.MONDAY,
@@ -150,11 +151,11 @@ public final class DirectoryUsers {
     UserGroup adminGroup = new UserGroup(
             usersAdmin,
             new String[]{
-                    "open",
-                    "close",
-                    "lock",
-                    "unlock",
-                    "unlock_shortly"
+                    Actions.OPEN,
+                    Actions.CLOSE,
+                    Actions.LOCK,
+                    Actions.UNLOCK,
+                    Actions.UNLOCK_SHORTLY
             },
             new DayOfWeek[]{
                     DayOfWeek.MONDAY,
