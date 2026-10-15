@@ -6,25 +6,24 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class Clock implements Observable{
+public class Clock extends Observable{
     private LocalDateTime date;
     private Timer timer;
     private int period; // seconds
-    private List<Observer> observers = new ArrayList<>();//array to store observers, all the objects that will use the clock
 
     public Clock(int period) {
         this.period = period;
         timer = new Timer();
     }
     public void addObserver(Observer observer) {
-        observers.add(observer);
+        super.observers.add(observer);
     }
     public void removeObserver(Observer observer) {
-        observers.remove(observer);
+        super.observers.remove(observer);
     }
     //notifies every observer, note that we do a copy of the array, in case it is changed when we are iterating over it
     public void notifyObservers() {
-        for (Observer observer : new ArrayList<>(observers)) {
+        for (Observer observer : new ArrayList<>(super.observers)) {
             observer.update(date);
         }
     }
