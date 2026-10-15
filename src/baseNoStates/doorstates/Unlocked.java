@@ -54,10 +54,5 @@ public class Unlocked extends DoorState{
     public void shortly_unlocked() {
         System.out.println("Can't shortly unlock the door " + super.door.getId() + " because it's already unlocked");
     }
-
-    @Override
-    public void update(LocalDateTime date) {
-
-    }
 }
 

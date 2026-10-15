@@ -49,8 +49,4 @@ public class Shortly_Unlocked extends DoorState{
         System.out.println("Can't unlock door " + super.door.getId() + " because it's shortly unlocked");
     }
 
-    @Override
-    public void update(LocalDateTime date) {
-
-    }
 }

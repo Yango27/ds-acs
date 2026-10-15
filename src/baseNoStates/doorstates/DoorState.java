@@ -3,7 +3,7 @@ package baseNoStates.doorstates;
 import baseNoStates.Door;
 import baseNoStates.clock_observers.Observer;
 
-public abstract class DoorState implements Observer { //state pattern
+public abstract class DoorState { //state pattern
     protected Door door;
     protected String name;
 

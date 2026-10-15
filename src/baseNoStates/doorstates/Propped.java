@@ -41,9 +41,4 @@ public class Propped extends DoorState{
     public void shortly_unlocked() {
         System.out.println("Can't shortly unlock door " + super.door.getId() + " because it's propped");
     }
-
-    @Override
-    public void update(LocalDateTime date) {
-
-    }
 }

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class Clock {
+public class Clock implements Observable{
     private LocalDateTime date;
     private Timer timer;
     private int period; // seconds

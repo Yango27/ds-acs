@@ -1,11 +1,12 @@
 package baseNoStates.doorstates;
 import baseNoStates.Door;
 import baseNoStates.Main;
+import baseNoStates.clock_observers.Observer;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-public class Locked extends DoorState{
+public class Locked extends DoorState implements Observer{
     private LocalDateTime startDate;
 
     public Locked(Door door){
