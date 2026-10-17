@@ -2,8 +2,6 @@ package baseNoStates.doorstates;
 
 import baseNoStates.Door;
 
-import java.time.LocalDateTime;
-
 public class Propped extends DoorState{
     public Propped(Door door){
         super(door);

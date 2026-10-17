@@ -2,49 +2,228 @@
 'https://plantuml.com/class-diagram
 skinparam classAttributeIconSize 0
 
-package requests {
-    interface Request {
-    + {abstract} answerToJson() : JSONObject
-    + {abstract} process()
-    + {abstract} toString() : String
-    }
-
-    class RequestRefresh implements Request {
-    - jsonDoors : JSONObject[]
-    + answerToJson() : JSONObject
-    + process()
-    + toString() : String
-    }
-
-    class RequestReader implements Request {
-    - credential : String
-    - action : String
-    - now : LocalDateTime
-    - doorId : String
-    - userName : String
-    - authorized : boolean
-    - reasons : String[]
-    - doorStateName : String
-    + answerToJson() : JSONObject
-    + process()
-    - authorize(user : User, door : Door)
-    + toString() : String
-    + setDoorStateName(name : String)
-    + getAction() : String
-    + isAuthorized() : boolean
-    }
-
-    class RequestArea implements Request {
-    - credential : String
-    - action : String
-    - now : LocalDateTime
-    - areaId : String
-    - requestsReader : RequestReader[]
-    + answerToJson() : JSONObject
-    + process()
-    + getAction() : String
-    }
+class Webserver {
+- {static} PORT :int
+- {static} FORMATTER : DateTimeFormatter
++ Webserver()
 }
 
+class SocketThread {
+- insocked : Socked
+- makeRequest(tokens : String[]) : Request
+- makeRequestReader(tokens : String[]) : RequestReader
+- makeRequestArea(tokens : String[]) : RequestArea
+- makeHeaderAnswer() : String
+- makeJsonAnswer(request : Request) : String
++ run()
+}
+
+Webserver +-right- SocketThread
+
+note right of SocketThread
+inner class
+of Webserver
+end note
+
+class DirectoryDoors {
+- {static} allDoors : Door[]
++ {static} makeDoors()
++ {static} findDoorById(id : String) : Door
++ {static} getAllDoors() : Door[]
+}
+
+DirectoryDoors --> "*" Door : "allDoors"
+
+class DirectoryUsers {
++ {static} makeUsers()
++ {static} findUserByCredential(credential : String) : User
+- {static} addAreaDoors(doors : ArrayList<String>, areaId : String) : void
+}
+
+class Door {
+    -id: String
+    -closed: boolean
+
+    +Door(id: String)
+    +processRequest(request: RequestReader): void
+    -doAction(action: String): void
+    +setState(doorState: DoorState): void
+    +isClosed(): boolean
+    +setClosed(closed: boolean): void
+    +getId(): String
+    +getStateName(): String
+    +toString(): String
+    +toJson(): JSONObject
+}
+
+
+class Main {
++ {static} main(args : String)
+}
+
+note right of Main::main
+DirectoryDoors.makeDoors()
+DiretoryUsers.makeUsers()
+new Webserver()
+end note
+
+Main -[hidden]down- Webserver
+Webserver -[hidden]down- DirectoryDoors
+DirectoryDoors -[hidden]right- DirectoryUsers
+
+package clock_observers {
+    interface Observer {
+        {abstract} +update(date: LocalDateTime): void
+    }
+
+    abstract class Observable {
+        {abstract} +addObserver(observer: Observer): void
+        {abstract} +removeObserver(observer: Observer): void
+        {abstract} +notifyObservers(): void
+    }
+
+    Observable o-- "*" Observer : observers
+
+    class Clock {
+        -date: LocalDateTime
+        -timer: Timer
+        -period: int
+
+        +Clock(period: int)
+        +addObserver(observer: Observer): void
+        +removeObserver(observer: Observer): void
+        +notifyObservers(): void
+        +start(): void
+        +stop(): void
+        +getPeriod(): int
+        +getDate(): LocalDateTime
+    }
+    Clock --|> Observable
+}
+package doorstates{
+    abstract class DoorState {
+        #door: Door
+        #name: String
+
+        +DoorState(door: Door)
+        {abstract} +open(): void
+        {abstract} +close(): void
+        {abstract} +lock(): void
+        {abstract} +unlock(): void
+        {abstract} +shortly_unlocked(): void
+        {abstract} +returnState(): String
+    }
+
+    Door "1" *-- "1" DoorState : doorState
+    class Locked {
+        -startDate: LocalDateTime
+
+        +Locked(door: Door)
+        +returnState(): String
+        +close(): void
+        +lock(): void
+        +open(): void
+        +unlock(): void
+        +shortly_unlocked(): void
+        +update(date: LocalDateTime): void
+    }
+
+    Locked --|> DoorState
+    Locked ..|> Observer
+
+    class Propped {
+        +Propped(door: Door)
+        +returnState(): String
+        +close(): void
+        +lock(): void
+        +open(): void
+        +unlock(): void
+        +shortly_unlocked(): void
+    }
+
+    Propped --|> DoorState
+    class Shortly_Unlocked {
+        +Shortly_Unlocked(door: Door)
+        +returnState(): String
+        +close(): void
+        +lock(): void
+        +open(): void
+        +unlock(): void
+        +shortly_unlocked(): void
+    }
+
+    Shortly_Unlocked --|> DoorState
+    class Unlocked {
+        +Unlocked(door: Door)
+        +returnState(): String
+        +close(): void
+        +lock(): void
+        +open(): void
+        +unlock(): void
+        +shortly_unlocked(): void
+    }
+
+    Unlocked --|> DoorState
+}
+package users{
+    class UserGroup {
+        - validActions : String[]
+        - validDays : DayOfWeek[]
+        - startHour : LocalTime
+        - endHour : LocalTime
+        - startDay : LocalDate
+        - endDay : LocalDate
+        - validDoors : String[]
+
+        + UserGroup(users : ArrayList<User>, validActions : String[], validDays : DayOfWeek[], startHour : LocalTime,
+endHour : LocalTime, startDay : LocalDate, endDay : LocalDate, validDoors : String[])
+        + canSendRequests(now : LocalDateTime) : boolean
+        + canDoAction(action : String) : boolean
+        + canBeInSpace(doorId : String) : boolean
+        + isUserInGroup(user : User) : boolean
+    }
+
+    class User {
+    - name : String
+    - credential : String
+    + User(name: String, credential: String)
+    + toString() : String
+    }
+
+    UserGroup --> "*" User : users
+    DirectoryUsers --> "*" User : "users"
+}
+
+package areas{
+    abstract class Area {
+        # areaId : String
+
+        + Area(areaId : String)
+        {abstract} + getSpaces() : Space[]
+        {abstract} + getDoorsGivingAccess() : Door[]
+        {abstract} + getAreaById(areaId : String) : Area
+    }
+    class Partition {
+
+        + Partition(areas : Area[], areaId : String)
+        + getSpaces() : Space[]
+        + getDoorsGivingAccess() : Door[]
+        + getAreaById(areaId : String) : Area
+    }
+
+    Partition --|> Area
+    Partition *-- "*" Area : areas
+
+    class Space {
+
+        + Space(doors : Door[], areaId : String)
+        + getSpaces() : Space[]
+        + getDoorsGivingAccess() : Door[]
+        + getAreaById(areaId : String) : Area
+    }
+
+    Space --|> Area
+    Space  o-- "*" Door : doors
+}
 
 @enduml

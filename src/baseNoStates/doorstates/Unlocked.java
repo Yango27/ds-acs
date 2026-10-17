@@ -1,8 +1,6 @@
 package baseNoStates.doorstates;
 import baseNoStates.Door;
 
-import java.time.LocalDateTime;
-
 public class Unlocked extends DoorState{
 
     public Unlocked(Door door){
