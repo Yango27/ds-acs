@@ -9,6 +9,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 
+//class that creates users and users groups, and also assigns each users to its group
+//also provides useful methods related with users
 public final class DirectoryUsers {
   private static final ArrayList<User> users = new ArrayList<>();
   public static ArrayList<UserGroup> userGroups = new ArrayList<>();
@@ -64,7 +66,7 @@ public final class DirectoryUsers {
 
     ArrayList<String> doorsEmployees = new ArrayList<>();
     //add the doors ID of those areas valid for employees
-    addAreaDoors(doorsEmployees, "groundFloor");
+    addAreaDoors(doorsEmployees, "ground_floor");
     addAreaDoors(doorsEmployees, "floor1");
     addAreaDoors(doorsEmployees, "exterior");
     addAreaDoors(doorsEmployees, "stairs");

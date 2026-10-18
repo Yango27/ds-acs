@@ -1,6 +1,7 @@
 package baseNoStates.doorstates;
 import baseNoStates.Door;
 
+//unlocked state, in the method we define what a unlocked door does in each action
 public class Unlocked extends DoorState{
 
     public Unlocked(Door door){

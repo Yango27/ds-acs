@@ -2,6 +2,7 @@ package baseNoStates.doorstates;
 
 import baseNoStates.Door;
 
+//unlocked_shortly state, in the method we define what a unlocked shortly door does in each action
 public class Shortly_Unlocked extends DoorState{
     public Shortly_Unlocked(Door door){
         super(door);

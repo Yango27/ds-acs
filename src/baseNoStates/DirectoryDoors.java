@@ -3,6 +3,7 @@ package baseNoStates;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+//class used to create doors, and provides useful methods related with doors
 public final class DirectoryDoors {
   private static ArrayList<Door> allDoors;
 

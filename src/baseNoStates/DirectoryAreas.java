@@ -4,6 +4,7 @@ import baseNoStates.areas.Area;
 import baseNoStates.areas.Partition;
 import baseNoStates.areas.Space;
 
+//class that creates areas, and provides useful methods related with areas
 public final class DirectoryAreas {
     private static Area rootArea;
     private static Door[] allDoors;
@@ -35,13 +36,13 @@ public final class DirectoryAreas {
 
         // creating partitions, those areas that includes other spaces
         Partition basement = new Partition(new Space[]{parking}, "basement");
-        Partition groundFloor = new Partition(new Space[]{hall, room1, room2}, "groundFloor");
+        Partition ground_floor = new Partition(new Space[]{hall, room1, room2}, "ground_floor");
         Partition floor1 = new Partition(new Space[]{room3, corridor, IT}, "floor1");
         Partition stairs = new Partition(new Space[]{}, "stairs");
         Partition exterior = new Partition(new Space[]{}, "exterior");
 
         // creating the rootArea, basically all the building
-        rootArea = new Partition(new Partition[]{basement, groundFloor, floor1, stairs, exterior}, "building");
+        rootArea = new Partition(new Partition[]{basement, ground_floor, floor1, stairs, exterior}, "building");
     }
     public static Area findAreaById(String id){
         return rootArea.getAreaById(id);

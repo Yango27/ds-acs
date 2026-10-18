@@ -11,6 +11,9 @@ import baseNoStates.areas.Area;
 import baseNoStates.Door;
 import baseNoStates.DirectoryAreas;
 
+//RequestArea is used when the request is related to an Area of the building
+//when we call the process method, we will transform the requestArea object to
+//a group of RequestReader objects, one for each door involved
 public class RequestArea implements Request {
   private final String credential;
   private final String action;

@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+//RequestRefresh is used for refreshing the front-end with the actual back-end
+//basically, it will help to update the web with the actual states of the building
 public class RequestRefresh implements Request {
   private final ArrayList<JSONObject> jsonsDoors = new ArrayList<>();
 

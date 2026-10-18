@@ -1,5 +1,6 @@
 package baseNoStates;
 
+//magic numbers
 public final class Actions {
   // possible actions in reader and area requests
   public static final String LOCK = "lock";

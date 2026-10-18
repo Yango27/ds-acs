@@ -6,6 +6,8 @@ import baseNoStates.clock_observers.Observer;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
+//locked state, in the method we define what a locked door does in each action
+//it is also an observer, this comes from the observer pattern, explained in the class observable and observer
 public class Locked extends DoorState implements Observer{
     private LocalDateTime startDate;
 
@@ -48,6 +50,8 @@ public class Locked extends DoorState implements Observer{
         startDate = LocalDateTime.now(); //set the time when the timer starts from, to now (so, from now on, it counts to 10)
     }
 
+    //update method, used when the observable notifies it, it defines what a Locked door, which is an observer, does when
+    //it's notified
     @Override
     public void update(LocalDateTime date) {
         //if 10 secs has passed we check if the doors its opened or not, in order to locked it again

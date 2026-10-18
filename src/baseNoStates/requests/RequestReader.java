@@ -11,6 +11,9 @@ import baseNoStates.users.UserGroup;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+//RequestReader is used when the objective of the request is a single door
+//when we call the process method, it will see first if it's authorized
+//then it will pass the arguments to the door to process the request
 public class RequestReader implements Request {
   private final String credential; // who
   private final String action;     // what
@@ -89,8 +92,8 @@ public class RequestReader implements Request {
     doorClosed = door.isClosed();
   }
 
-  // the result is put into the request object plus, if not authorized, why not,
-  // only for testing
+  //if the request is authorized it will be reflected on the RequestReader object,
+  //also, this method adds the reason of why a request is not authorized (if there is)
   private void authorize(User user, Door door, String action, LocalDateTime now) {
     if (user == null) {
       authorized = false;
@@ -103,10 +106,15 @@ public class RequestReader implements Request {
           userGroup = g;
         }
       }
+      //we checked the three conditions for a request to be valid,
+      //it has to be done in the correct moment, in the correct place,
+      //and a valid action
       boolean timeValid = userGroup.canSendRequests(now);
       boolean areaValid = userGroup.canBeInSpace(door.getId());
       boolean actionValid = userGroup.canDoAction(action);
 
+      //if something is not valid we add it to the reasons, in order to know
+      //why that request is not valid
       if (!timeValid){
         reasons.add(new String("Time is not Valid"));
       }

@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+//a Clock is an observable object, it basically creates a timer that does a repeated task, which
+//is to notify observers periodically (each second), it updates the observers with the actual dateTime
 public class Clock extends Observable{
     private LocalDateTime date;
     private Timer timer;
@@ -26,7 +28,7 @@ public class Clock extends Observable{
             observer.update(date);
         }
     }
-    //each period, notifies and print
+    //each period, updates actual date, prints it and notifies
     public void start() {
         TimerTask repeatedTask = new TimerTask() {
             public void run() { // instance of anonymous class

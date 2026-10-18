@@ -2,6 +2,7 @@ package baseNoStates.doorstates;
 
 import baseNoStates.Door;
 
+//propped state, in the method we define what a propped door does in each action
 public class Propped extends DoorState{
     public Propped(Door door){
         super(door);

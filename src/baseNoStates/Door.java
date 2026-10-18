@@ -5,7 +5,8 @@ import baseNoStates.doorstates.Unlocked;
 import baseNoStates.requests.RequestReader;
 import org.json.JSONObject;
 
-
+//Door, a class that represents a single door, and stores their id, if they are closed, and a
+//state, it is used to process a request, this request is basically to do an action to the door
 public class Door {
   private final String id;
   private boolean closed; // physically
@@ -17,9 +18,10 @@ public class Door {
     this.doorState = new Unlocked(this);
   }
 
+  //RequestReader calls for the Door processRequest
   public void processRequest(RequestReader request) {
     // it is the Door that process the request because the door has and knows
-    // its state, and if closed or open
+    // its state, and if it's closed or open
     if (request.isAuthorized()) {
       String action = request.getAction();
       doAction(action);
@@ -29,6 +31,7 @@ public class Door {
     request.setDoorStateName(getStateName());
   }
 
+  //given an action, sets the state of the door
   private void doAction(String action) {
     switch (action) {
       case Actions.OPEN:

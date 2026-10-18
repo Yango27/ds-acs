@@ -1,5 +1,6 @@
 package baseNoStates.users;
 
+//a user, stores the name and credentials of it
 public class User {
   private final String name;
   private final String credential;

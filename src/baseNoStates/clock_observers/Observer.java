@@ -1,7 +1,9 @@
 package baseNoStates.clock_observers;
 
 import java.time.LocalDateTime;
-
-public interface Observer { //observer pattern, where clock is the observed
-    public abstract void update(LocalDateTime date); //method that observers will use when the Clock notifies them
+//observer pattern, where clock is the observed and
+//observers are objects of Locked doorState which their unlock_shortly() method has been called
+public interface Observer {
+    //method that observers will use when the Clock (observable) notifies them
+    public abstract void update(LocalDateTime date);
 }
