@@ -7,15 +7,25 @@ import java.util.TimerTask;
 
 //a Clock is an observable object, it basically creates a timer that does a repeated task, which
 //is to notify observers periodically (each second), it updates the observers with the actual dateTime
+//we will make this class a singleton, since we only use one instance of this class
 public class Clock extends Observable{
     private LocalDateTime date;
     private Timer timer;
     private int period; // seconds
+    private static Clock uniqueInstance;
 
-    public Clock(int period) {
+    private Clock(int period) {
         this.period = period;
         timer = new Timer();
     }
+
+    public static Clock getInstance(int period) {
+        if (uniqueInstance == null){
+            uniqueInstance = new Clock(period);
+        }
+        return uniqueInstance;
+    }
+
     public void addObserver(Observer observer) {
         super.observers.add(observer);
     }

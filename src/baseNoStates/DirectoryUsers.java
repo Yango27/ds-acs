@@ -2,6 +2,7 @@ package baseNoStates;
 
 import baseNoStates.users.User;
 import baseNoStates.users.UserGroup;
+import baseNoStates.visitor.GetDoorsGivingAccess;
 
 import javax.swing.*;
 import java.time.DayOfWeek;
@@ -19,8 +20,10 @@ public final class DirectoryUsers {
   private static void addAreaDoors(ArrayList<String> doors, String areaId) {
     //gets the area by ID, then, gets every door of that ID, and finally
     //get the ID of those Doors
-    for (Door d : DirectoryAreas.findAreaById(areaId)
-            .getDoorsGivingAccess()) {
+    GetDoorsGivingAccess visitor = new GetDoorsGivingAccess();
+    DirectoryAreas.findAreaById(areaId).acceptVisitor(visitor);
+    Door[] doorsArea = visitor.getResultDoors();
+    for (Door d : doorsArea) {
       doors.add(d.getId());
     }
   }

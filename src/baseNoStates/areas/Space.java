@@ -1,6 +1,7 @@
 package baseNoStates.areas;
 
 import baseNoStates.Door;
+import baseNoStates.visitor.Visitor;
 
 //a Space represents the leafs of the tree, and it stores all the doors in that space
 //we can see that in it's  methods we don't find any recursive calls, that's because we
@@ -12,25 +13,10 @@ public class Space extends Area{
         super(areaId);
         this.doors = doors;
     }
-
-    @Override
-    public Space[] getSpaces() { //returns an array of itself
-        return new Space[]{this};
-    }
-
-    @Override
-    public Door[] getDoorsGivingAccess() { //returns all the doors associated with this Space
+    public Door[] getDoors() {
         return doors;
     }
-
-    @Override
-    public Area getAreaById(String areaId) {
-        if(super.areaId.equals(areaId)) {
-            System.out.println("Searching " + areaId + ": found space " + super.areaId + "FOUND");
-            return this;
-        }else{
-            System.out.println("Searching " + areaId + ": found space " + super.areaId + "NOT FOUND");
-            return null;
-        }
+    public void acceptVisitor(Visitor visitor){
+        visitor.visitSpace(this);
     }
 }

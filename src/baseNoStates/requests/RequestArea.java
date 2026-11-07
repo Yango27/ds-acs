@@ -1,6 +1,7 @@
 package baseNoStates.requests;
 
 import baseNoStates.Actions;
+import baseNoStates.visitor.GetDoorsGivingAccess;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -82,7 +83,10 @@ public class RequestArea implements Request {
 
       // Make all the door requests, one for each door in the area, and process them.
       // Look for the doors in the spaces of this area that give access to them.
-      for (Door door : area.getDoorsGivingAccess()) {
+      GetDoorsGivingAccess visitor = new GetDoorsGivingAccess();
+      area.acceptVisitor(visitor);
+      Door[] doors = visitor.getResultDoors();
+      for (Door door : doors) {
         RequestReader requestReader = new RequestReader(credential, action, now, door.getId());
         requestReader.process();
         // after process() the area request contains the answer as the answer

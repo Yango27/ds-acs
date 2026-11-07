@@ -6,7 +6,7 @@ package baseNoStates;
 import baseNoStates.clock_observers.Clock;
 
 public class Main {
-  public static final Clock clock = new Clock(1);  //we instanciate clock, it can be accessed from any class
+  public static final Clock clock = Clock.getInstance(1);  //we instanciate clock, it can be accessed from any class
   public static void main(String[] args) {
     //creates all the doors, areas, and users (and user groups), and start clock and the web
     DirectoryDoors.makeDoors();

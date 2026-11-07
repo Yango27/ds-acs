@@ -3,6 +3,8 @@ package baseNoStates;
 import baseNoStates.areas.Area;
 import baseNoStates.areas.Partition;
 import baseNoStates.areas.Space;
+import baseNoStates.visitor.GetAreaById;
+import baseNoStates.visitor.Visitor;
 
 //class that creates areas, and provides useful methods related with areas
 public final class DirectoryAreas {
@@ -45,7 +47,9 @@ public final class DirectoryAreas {
         rootArea = new Partition(new Partition[]{basement, ground_floor, floor1, stairs, exterior}, "building");
     }
     public static Area findAreaById(String id){
-        return rootArea.getAreaById(id);
+        GetAreaById visitor = new GetAreaById(id);
+        rootArea.acceptVisitor(visitor);
+        return visitor.getResultArea();
     }
     public static Door findDoorById(String id){
         for (Door door : allDoors) {
