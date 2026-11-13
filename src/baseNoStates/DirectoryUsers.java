@@ -1,8 +1,11 @@
 package baseNoStates;
 
+import baseNoStates.doorstates.Locked;
 import baseNoStates.users.User;
 import baseNoStates.users.UserGroup;
 import baseNoStates.visitor.GetDoorsGivingAccess;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.time.DayOfWeek;
@@ -15,6 +18,7 @@ import java.util.ArrayList;
 public final class DirectoryUsers {
   private static final ArrayList<User> users = new ArrayList<>();
   public static ArrayList<UserGroup> userGroups = new ArrayList<>();
+  private static final Logger logger = LoggerFactory.getLogger(DirectoryUsers.class);
 
   //adds in an array doors all the doors ID of an area given an area ID.
   private static void addAreaDoors(ArrayList<String> doors, String areaId) {
@@ -191,7 +195,7 @@ public final class DirectoryUsers {
         return user;
       }
     }
-    System.out.println("user with credential " + credential + " not found");
+    logger.warn("user with credential {} not found", credential);
     return null; // otherwise we get a Java error
   }
 

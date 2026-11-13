@@ -1,9 +1,12 @@
 package baseNoStates;
 
 import baseNoStates.doorstates.DoorState;
+import baseNoStates.doorstates.Locked;
 import baseNoStates.doorstates.Unlocked;
 import baseNoStates.requests.RequestReader;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 //Door, a class that represents a single door, and stores their id, if they are closed, and a
 //state, it is used to process a request, this request is basically to do an action to the door
@@ -11,6 +14,7 @@ public class Door {
   private final String id;
   private boolean closed; // physically
   private DoorState doorState;
+  private static final Logger logger = LoggerFactory.getLogger(Door.class);
 
   public Door(String id) {
     this.id = id;
@@ -25,8 +29,9 @@ public class Door {
     if (request.isAuthorized()) {
       String action = request.getAction();
       doAction(action);
+      logger.info("Authorized");
     } else {
-      System.out.println("not authorized");
+      logger.warn("Not authorized");
     }
     request.setDoorStateName(getStateName());
   }

@@ -1,6 +1,7 @@
 package baseNoStates.requests;
 
 import baseNoStates.Actions;
+import baseNoStates.doorstates.Locked;
 import baseNoStates.visitor.GetDoorsGivingAccess;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -11,6 +12,8 @@ import java.util.ArrayList;
 import baseNoStates.areas.Area;
 import baseNoStates.Door;
 import baseNoStates.DirectoryAreas;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 //RequestArea is used when the request is related to an Area of the building
 //when we call the process method, we will transform the requestArea object to
@@ -21,6 +24,7 @@ public class RequestArea implements Request {
   private final String areaId;
   private final LocalDateTime now;
   private ArrayList<RequestReader> requests = new ArrayList<>();
+  private static final Logger logger = LoggerFactory.getLogger(RequestArea.class);
 
 
   public RequestArea(String credential, String action, LocalDateTime now, String areaId) {
@@ -93,6 +97,8 @@ public class RequestArea implements Request {
         // to each individual door request, that is read by the simulator/Flutter app
         requests.add(requestReader);
       }
+    } else{
+      logger.error("Area {} not found!", areaId);
     }
 
   }

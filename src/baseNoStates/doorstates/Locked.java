@@ -2,6 +2,8 @@ package baseNoStates.doorstates;
 import baseNoStates.Door;
 import baseNoStates.Main;
 import baseNoStates.clock_observers.Observer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -10,6 +12,7 @@ import java.time.LocalDateTime;
 //it is also an observer, this comes from the observer pattern, explained in the class observable and observer
 public class Locked extends DoorState implements Observer{
     private LocalDateTime startDate;
+    private static final Logger logger = LoggerFactory.getLogger(Locked.class);
 
     public Locked(Door door){
         super(door);
@@ -22,28 +25,28 @@ public class Locked extends DoorState implements Observer{
 
     @Override
     public void close() {
-        System.out.println("Can't close door " + super.door.getId() + " because it's already closed");
+        logger.warn("Can't close door {} because it's already closed", super.door.getId());
     }
 
     @Override
     public void lock() {
-        System.out.println("Can't lock door " + super.door.getId() + " because it's already locked");
+        logger.warn("Can't lock door {} because it's already locked", super.door.getId());
     }
 
     @Override
     public void open() {
-        System.out.println("Can't open door " + super.door.getId() + " because it's locked");
+        logger.warn("Can't open door {} because it's locked", super.door.getId());
     }
 
     @Override
     public void unlock() {
-        System.out.println("Door " + super.door.getId() + " unlocked!");
+        logger.info("Door {} unlocked!", super.door.getId());
         super.door.setState(new Unlocked(super.door));
     }
 
     @Override
     public void shortly_unlocked() {
-        System.out.println("Door " + super.door.getId() + " shortly unlocked!");
+        logger.info("Door {} shortly unlocked!", super.door.getId());
         super.door.setState(new Shortly_Unlocked(super.door));
 
         Main.clock.addObserver(this); //add this object to observers, so clock notifies us about the time
@@ -57,11 +60,11 @@ public class Locked extends DoorState implements Observer{
         //if 10 secs has passed we check if the doors its opened or not, in order to locked it again
         if (Duration.between(startDate, date).getSeconds() >= 10){
             if (super.door.isClosed()){
-                System.out.println("Door " + super.door.getId() + " is locked again!");
+                logger.info("Door {} is locked again!", super.door.getId());
                 super.door.setState(new Locked(super.door));
             }
             else{
-                System.out.println("Door " + super.door.getId() + " is propped!");
+                logger.warn("Door {} is propped!", super.door.getId());
                 super.door.setState(new Propped(super.door));
             }
             Main.clock.removeObserver(this);

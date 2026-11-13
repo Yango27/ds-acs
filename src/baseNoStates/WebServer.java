@@ -1,9 +1,11 @@
 package baseNoStates;
 
 import baseNoStates.requests.Request;
+import baseNoStates.requests.RequestArea;
 import baseNoStates.requests.RequestReader;
 import baseNoStates.requests.RequestRefresh;
-import baseNoStates.requests.RequestArea;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,11 +24,12 @@ public class WebServer {
   private static final int PORT = 8080; // port to listen connection
   private static final DateTimeFormatter formatter =
           DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+  private static final Logger logger = LoggerFactory.getLogger(WebServer.class);
 
   public WebServer() {
     try {
       ServerSocket serverConnect = new ServerSocket(PORT);
-      System.out.println("Server started.\nListening for connections on port : " + PORT + " ...\n");
+      logger.info("Server started.\nListening for connections on port : {} ...\n", PORT);
       // we listen until user halts server execution
       while (true) {
         // each client connection will be managed in a dedicated Thread
@@ -34,7 +37,7 @@ public class WebServer {
         // create dedicated thread to manage the client connection
       }
     } catch (IOException e) {
-      System.err.println("Server Connection error : " + e.getMessage());
+      logger.error("Server Connection error : {}", e.getMessage());
     }
   }
 
@@ -64,25 +67,25 @@ public class WebServer {
         String input = in.readLine();
         // we parse the request with a string tokenizer
 
-        System.out.println("sockedthread : " + input);
+        logger.info("sockedthread : {}", input);
 
         StringTokenizer parse = new StringTokenizer(input);
         String method = parse.nextToken().toUpperCase(); // we get the HTTP method of the client
         if (!method.equals("GET")) {
-          System.out.println("501 Not Implemented : " + method + " method.");
+          logger.info("501 Not Implemented : {} method.", method);
         } else {
           // what comes after "localhost:8080"
           resource = parse.nextToken();
-          System.out.println("input " + input);
-          System.out.println("method " + method);
-          System.out.println("resource " + resource);
+          logger.info("input {}", input);
+          logger.info("method {}", method);
+          logger.info("resource {}", resource);
 
           parse = new StringTokenizer(resource, "/[?]=&");
           int i = 0;
           String[] tokens = new String[20]; // more than the actual number of parameters
           while (parse.hasMoreTokens()) {
             tokens[i] = parse.nextToken();
-            System.out.println(i + " " + tokens[i]);
+            logger.info("{} {}", i, tokens[i]);
             i++;
           }
 
@@ -90,12 +93,12 @@ public class WebServer {
           Request request = makeRequest(tokens);
           if (request != null) {
             String typeRequest = tokens[0];
-            System.out.println("created request " + typeRequest + " " + request);
+            logger.info("created request {} {}", typeRequest, request);
             request.process();
-            System.out.println("processed request " + typeRequest + " " + request);
+            logger.info("processed request {} {}", typeRequest, request);
             // Make the answer as a JSON string, to be sent to the Javascript client
             String answer = makeJsonAnswer(request);
-            System.out.println("answer\n" + answer);
+            logger.info("answer\n{}", answer);
             // Here we send the response to the client
             out.println(answer);
             out.flush(); // flush character output stream buffer
@@ -106,17 +109,16 @@ public class WebServer {
         out.close();
         insocked.close(); // we close socket connection
       } catch (Exception e) {
-        System.err.println("Exception : " + e);
+        logger.error("Exception : {}", e.getMessage(), e);
       }
     }
 
     private Request makeRequest(String[] tokens) {
       // always return request because it contains the answer for the Javascript client
-      System.out.print("tokens : ");
+      logger.info("tokens : ");
       for (String token : tokens) {
-        System.out.print(token + ", ");
+        logger.info("{}, ", token);
       }
-      System.out.println();
 
       Request request;
       // assertions below evaluated to false won't stop the webserver, just print an

@@ -3,13 +3,17 @@ package baseNoStates;
 import baseNoStates.areas.Area;
 import baseNoStates.areas.Partition;
 import baseNoStates.areas.Space;
+import baseNoStates.doorstates.Locked;
 import baseNoStates.visitor.GetAreaById;
 import baseNoStates.visitor.Visitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 //class that creates areas, and provides useful methods related with areas
 public final class DirectoryAreas {
     private static Area rootArea;
     private static Door[] allDoors;
+    private static final Logger logger = LoggerFactory.getLogger(DirectoryAreas.class);
 
     public static void makeAreas(){
         allDoors = DirectoryDoors.getAllDoors().toArray(new Door[0]); //get all doors
@@ -57,7 +61,7 @@ public final class DirectoryAreas {
                 return door;
             }
         }
-        System.out.println("door with id " + id + " not found");
+        logger.warn("door with id {} not found", id);
         return null;
     }
 

@@ -1,9 +1,12 @@
 package baseNoStates.doorstates;
 
 import baseNoStates.Door;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 //unlocked_shortly state, in the method we define what a unlocked shortly door does in each action
 public class Shortly_Unlocked extends DoorState{
+    private static final Logger logger = LoggerFactory.getLogger(Shortly_Unlocked.class);
     public Shortly_Unlocked(Door door){
         super(door);
     }
@@ -17,35 +20,35 @@ public class Shortly_Unlocked extends DoorState{
     public void close() {
         if (!super.door.isClosed()) {
             super.door.setClosed(true);
-            System.out.println("Door " + super.door.getId() + " closed!");
+            logger.info("Door {} closed!", super.door.getId());
         } else {
-            System.out.println("Can't close door " + super.door.getId() + " because it's already closed");
+            logger.warn("Can't close door {} because it's already closed", super.door.getId());
         }
     }
 
     @Override
     public void lock() {
-        System.out.println("Can't lock door " + super.door.getId() + " because it's shortly unlocked");
+        logger.warn("Can't lock door {} because it's shortly unlocked", super.door.getId());
     }
 
     @Override
     public void open() {
         if (super.door.isClosed()) {
-            System.out.println("Door " + super.door.getId() + " opened!");
+            logger.info("Door {} opened!", super.door.getId());
             super.door.setClosed(false);
         } else {
-            System.out.println("Can't open door " + super.door.getId() + " because it's already opened");
+            logger.warn("Can't open door {} because it's already opened", super.door.getId());
         }
     }
 
     @Override
     public void unlock() {
-        System.out.println("Can't unlock door " + super.door.getId() + " because it's shortly unlocked");
+        logger.warn("Can't unlock door {} because it's shortly unlocked", super.door.getId());
     }
 
     @Override
     public void shortly_unlocked() {
-        System.out.println("Can't unlock door " + super.door.getId() + " because it's shortly unlocked");
+        logger.warn("Can't unlock door {} because it's shortly unlocked", super.door.getId());
     }
 
 }

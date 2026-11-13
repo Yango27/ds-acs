@@ -1,11 +1,16 @@
 package baseNoStates;
 
+import baseNoStates.doorstates.Locked;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
 //class used to create doors, and provides useful methods related with doors
 public final class DirectoryDoors {
   private static ArrayList<Door> allDoors;
+  private static final Logger logger = LoggerFactory.getLogger(DirectoryDoors.class);
 
   public static void makeDoors() {
     // basement
@@ -32,13 +37,12 @@ public final class DirectoryDoors {
         return door;
       }
     }
-    System.out.println("door with id " + id + " not found");
+    logger.warn("door with id {} not found", id);
     return null; // otherwise we get a Java error
   }
 
   // this is needed by RequestRefresh
   public static ArrayList<Door> getAllDoors() {
-    System.out.println(allDoors);
     return allDoors;
   }
 

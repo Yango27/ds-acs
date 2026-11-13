@@ -1,5 +1,9 @@
 package baseNoStates.clock_observers;
 
+import baseNoStates.doorstates.Locked;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Timer;
@@ -13,6 +17,7 @@ public class Clock extends Observable{
     private Timer timer;
     private int period; // seconds
     private static Clock uniqueInstance;
+    private static final Logger logger = LoggerFactory.getLogger(Clock.class);
 
     private Clock(int period) {
         this.period = period;
@@ -43,7 +48,7 @@ public class Clock extends Observable{
         TimerTask repeatedTask = new TimerTask() {
             public void run() { // instance of anonymous class
                 date = LocalDateTime.now();
-                System.out.println("run() executed at " + date);
+                logger.debug("run() executed at {}", date);
                 notifyObservers();
             }
         };

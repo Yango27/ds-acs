@@ -1,12 +1,15 @@
 package baseNoStates.doorstates;
 
 import baseNoStates.Door;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 //propped state, in the method we define what a propped door does in each action
 public class Propped extends DoorState{
     public Propped(Door door){
         super(door);
     }
+    private static final Logger logger = LoggerFactory.getLogger(Propped.class);
 
     @Override
     public String returnState() {
@@ -17,27 +20,27 @@ public class Propped extends DoorState{
     public void close() {
         super.door.setClosed(true);
         super.door.setState(new Locked(super.door));
-        System.out.println("Door " + super.door.getId() + " closed!");
-        System.out.println("Door " + super.door.getId() + " locked again!");
+        logger.info("Door {} closed!", super.door.getId());
+        logger.info("Door {} locked again!", super.door.getId());
     }
 
     @Override
     public void lock() {
-        System.out.println("Can't lock door " + super.door.getId() + " because it's propped");
+        logger.warn("Can't lock door {} because it's propped", super.door.getId());
     }
 
     @Override
     public void open() {
-        System.out.println("Can't open door " + super.door.getId() + " because it's propped");
+        logger.warn("Can't open door {} because it's propped", super.door.getId());
     }
 
     @Override
     public void unlock() {
-        System.out.println("Can't unlock door " + super.door.getId() + " because it's propped");
+        logger.warn("Can't unlock door {} because it's propped", super.door.getId());
     }
 
     @Override
     public void shortly_unlocked() {
-        System.out.println("Can't shortly unlock door " + super.door.getId() + " because it's propped");
+        logger.warn("Can't shortly unlock door {} because it's propped", super.door.getId());
     }
 }
