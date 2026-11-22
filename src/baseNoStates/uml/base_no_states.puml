@@ -2,10 +2,10 @@
 'https://plantuml.com/class-diagram
 skinparam classAttributeIconSize 0
 
-class Webserver {
+class WebServer {
 - {static} PORT :int
 - {static} FORMATTER : DateTimeFormatter
-+ Webserver()
++ WebServer()
 }
 
 class SocketThread {
@@ -18,27 +18,36 @@ class SocketThread {
 + run()
 }
 
-Webserver +-right- SocketThread
+WebServer +-right- SocketThread
 
 note right of SocketThread
 inner class
-of Webserver
+of WebServer
 end note
 
 class DirectoryDoors {
-- {static} allDoors : Door[]
-+ {static} makeDoors()
-+ {static} findDoorById(id : String) : Door
-+ {static} getAllDoors() : Door[]
+- {static} uniqueInstance : DirectoryDoors
+- allDoors : ArrayList<Door>
+- DirectoryDoors()
++ {static} getInstance() : DirectoryDoors
++ makeDoors()
++ findDoorById(id : String) : Door
++ getAllDoors() : ArrayList<Door>
 }
 
 DirectoryDoors --> "*" Door : "allDoors"
+DirectoryDoors --> "1" DirectoryDoors : uniqueInstance
 
 class DirectoryUsers {
-+ {static} makeUsers()
-+ {static} findUserByCredential(credential : String) : User
-- {static} addAreaDoors(doors : ArrayList<String>, areaId : String) : void
+- {static} uniqueInstance : DirectoryUsers
+- DirectoryUsers()
++ {static} getInstance() : DirectoryUsers
++ makeUsers()
++ findUserByCredential(credential : String) : User
+- addAreaDoors(doors : ArrayList<String>, areaId : String) : void
 }
+
+DirectoryUsers --> "1" DirectoryUsers : uniqueInstance
 
 class Door {
     -id: String
@@ -62,13 +71,11 @@ class Main {
 }
 
 note right of Main::main
-DirectoryDoors.makeDoors()
-DiretoryUsers.makeUsers()
-new Webserver()
+new WebServer()
 end note
 
-Main -[hidden]down- Webserver
-Webserver -[hidden]down- DirectoryDoors
+Main -[hidden]down- WebServer
+WebServer -[hidden]down- DirectoryDoors
 DirectoryDoors -[hidden]right- DirectoryUsers
 
 package clock_observers {
@@ -87,18 +94,21 @@ package clock_observers {
     class Clock {
         -date: LocalDateTime
         -timer: Timer
-        -period: int
+        -{static} PERIOD: int
+        -{static} uniqueInstance: Clock
 
-        +Clock(period: int)
+        -Clock(period: int)
+        +{static} getInstance(): Clock
         +addObserver(observer: Observer): void
         +removeObserver(observer: Observer): void
         +notifyObservers(): void
-        +start(): void
+        -start(): void
         +stop(): void
         +getPeriod(): int
         +getDate(): LocalDateTime
     }
     Clock --|> Observable
+    Clock --> "1" Clock : uniqueInstance
 }
 package doorstates{
     abstract class DoorState {
@@ -115,6 +125,7 @@ package doorstates{
     }
 
     Door "1" *-- "1" DoorState : doorState
+    DoorState --> "1" Door : door
     class Locked {
         -startDate: LocalDateTime
 
@@ -168,15 +179,9 @@ package doorstates{
 package users{
     class UserGroup {
         - validActions : String[]
-        - validDays : DayOfWeek[]
-        - startHour : LocalTime
-        - endHour : LocalTime
-        - startDay : LocalDate
-        - endDay : LocalDate
         - validDoors : String[]
 
-        + UserGroup(users : ArrayList<User>, validActions : String[], validDays : DayOfWeek[], startHour : LocalTime,
-endHour : LocalTime, startDay : LocalDate, endDay : LocalDate, validDoors : String[])
+        + UserGroup(users : ArrayList<User>, validActions : String[], validDays : DayOfWeek[], startHour : LocalTime, endHour : LocalTime, startDay : LocalDate, endDay : LocalDate, validDoors : String[])
         + canSendRequests(now : LocalDateTime) : boolean
         + canDoAction(action : String) : boolean
         + canBeInSpace(doorId : String) : boolean
@@ -187,11 +192,26 @@ endHour : LocalTime, startDay : LocalDate, endDay : LocalDate, validDoors : Stri
     - name : String
     - credential : String
     + User(name: String, credential: String)
+    + getCredential() : String
+    + getName() : String
     + toString() : String
     }
 
+    class Schedule {
+        - validDays : DayOfWeek[]
+        - startHour : LocalTime
+        - endHour : LocalTime
+        - startDay : LocalDate
+        - endDay : LocalDate
+
+        + Schedule(validDays : DayOfWeek[], startHour : LocalTime, endHour : LocalTime, startDay : LocalDate, endDay : LocalDate)
+        + canSendRequests(now : LocalDateTime) : boolean
+    }
+
     UserGroup --> "*" User : users
+    UserGroup *-- "1" Schedule : schedule
     DirectoryUsers --> "*" User : "users"
+    DirectoryUsers --> "*" UserGroup : userGroups
 }
 
 package areas{
@@ -199,16 +219,14 @@ package areas{
         # areaId : String
 
         + Area(areaId : String)
-        {abstract} + getSpaces() : Space[]
-        {abstract} + getDoorsGivingAccess() : Door[]
-        {abstract} + getAreaById(areaId : String) : Area
+        {abstract} + acceptVisitor(visitor : Visitor) : void
+        + getId() : String
     }
     class Partition {
 
         + Partition(areas : Area[], areaId : String)
-        + getSpaces() : Space[]
-        + getDoorsGivingAccess() : Door[]
-        + getAreaById(areaId : String) : Area
+        + getAreas() : Area[]
+        + acceptVisitor(visitor : Visitor) : void
     }
 
     Partition --|> Area
@@ -217,9 +235,8 @@ package areas{
     class Space {
 
         + Space(doors : Door[], areaId : String)
-        + getSpaces() : Space[]
-        + getDoorsGivingAccess() : Door[]
-        + getAreaById(areaId : String) : Area
+        + getDoors() : Door[]
+        + acceptVisitor(visitor : Visitor) : void
     }
 
     Space --|> Area
@@ -227,17 +244,55 @@ package areas{
 }
 
 class DirectoryAreas {
-    - {static} rootArea : Area
-    - {static} allDoors : Door[]
+    - {static} uniqueInstance : DirectoryAreas
+    - rootArea : Area
+    - allDoors : Door[]
 
-    + {static} makeAreas() : void
-    + {static} findAreaById(id : String) : Area
-    + {static} findDoorById(id : String) : Door
-    + {static} getAllDoors() : Door[]
-    + {static} getRootArea() : Area
+    - DirectoryAreas()
+    + {static} getInstance() : DirectoryAreas
+    + makeAreas() : void
+    + findAreaById(id : String) : Area
+    + findDoorById(id : String) : Door
+    + getAllDoors() : Door[]
+    + getRootArea() : Area
 }
 
-DirectoryAreas --> Area : rootArea
-DirectoryAreas --> Door : allDoors
+DirectoryAreas --> "1" Area : rootArea
+DirectoryAreas --> "*" Door : allDoors
+DirectoryAreas --> "1" DirectoryAreas : uniqueInstance
+
+package visitor {
+    interface Visitor {
+            {abstract} + visitPartition(partition : Partition) : void
+            {abstract} + visitSpace(space : Space) : void
+        }
+
+        class GetAreaById {
+            - areaId : String
+            - resultArea : Area
+            + GetAreaById(areaId : String)
+            + visitPartition(partition : Partition) : void
+            + visitSpace(space : Space) : void
+            + getResultArea() : Area
+        }
+
+        class GetDoorsGivingAccess {
+            ~ resultDoors : Door[]
+            + visitPartition(partition : Partition) : void
+            + visitSpace(space : Space) : void
+            + getResultDoors() : Door[]
+        }
+
+        class GetSpaces {
+            - resultSpaces : Space[]
+            + visitPartition(partition : Partition) : void
+            + visitSpace(space : Space) : void
+            + getResultSpaces() : Space[]
+        }
+
+        GetAreaById ..|> Visitor
+        GetDoorsGivingAccess ..|> Visitor
+        GetSpaces ..|> Visitor
+}
 
 @enduml

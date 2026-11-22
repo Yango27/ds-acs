@@ -1,23 +1,20 @@
 package baseNoStates.requests;
 
 import baseNoStates.Actions;
-import baseNoStates.doorstates.Locked;
+import baseNoStates.DirectoryAreas;
+import baseNoStates.Door;
+import baseNoStates.areas.Area;
 import baseNoStates.visitor.GetDoorsGivingAccess;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-
-import baseNoStates.areas.Area;
-import baseNoStates.Door;
-import baseNoStates.DirectoryAreas;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-//RequestArea is used when the request is related to an Area of the building
-//when we call the process method, we will transform the requestArea object to
-//a group of RequestReader objects, one for each door involved
+// RequestArea is used when the request is related to an Area of the building
+// when we call the process method, we will transform the requestArea object to
+// a group of RequestReader objects, one for each door involved
 public class RequestArea implements Request {
   private final String credential;
   private final String action;
@@ -26,12 +23,11 @@ public class RequestArea implements Request {
   private ArrayList<RequestReader> requests = new ArrayList<>();
   private static final Logger logger = LoggerFactory.getLogger(RequestArea.class);
 
-
   public RequestArea(String credential, String action, LocalDateTime now, String areaId) {
     this.credential = credential;
     this.areaId = areaId;
     assert action.equals(Actions.LOCK) || action.equals(Actions.UNLOCK)
-            : "invalid action " + action + " for an area request";
+        : "invalid action " + action + " for an area request";
     this.action = action;
     this.now = now;
   }
@@ -63,27 +59,33 @@ public class RequestArea implements Request {
       requestsDoorsStr = requests.toString();
     }
     return "Request{"
-            + "credential=" + credential
-            + ", action=" + action
-            + ", now=" + now
-            + ", areaId=" + areaId
-            + ", requestsDoors=" + requestsDoorsStr
-            + "}";
+        + "credential="
+        + credential
+        + ", action="
+        + action
+        + ", now="
+        + now
+        + ", areaId="
+        + areaId
+        + ", requestsDoors="
+        + requestsDoorsStr
+        + "}";
   }
 
   // processing the request of an area is creating the corresponding door requests and forwarding
   // them to all of its doors. For some it may be authorized and action will be done, for others
   // it won't be authorized and nothing will happen to them.
   public void process() {
-    // commented out until Area, Space and Partition are implemented
 
     // make the door requests and put them into the area request to be authorized later and
     // processed later
-    Area area = DirectoryAreas.findAreaById(areaId);
+    DirectoryAreas directoryAreas = DirectoryAreas.getInstance();
+    Area area = directoryAreas.findAreaById(areaId);
     // an Area is a Space or a Partition
     if (area != null) {
       // is null when from the app we click on an action but no place is selected because
-      // there (flutter) I don't control like I do in javascript that all the parameters are provided
+      // there (flutter) I don't control like I do in javascript that all the parameters are
+      // provided
 
       // Make all the door requests, one for each door in the area, and process them.
       // Look for the doors in the spaces of this area that give access to them.
@@ -97,9 +99,8 @@ public class RequestArea implements Request {
         // to each individual door request, that is read by the simulator/Flutter app
         requests.add(requestReader);
       }
-    } else{
+    } else {
       logger.error("Area {} not found!", areaId);
     }
-
   }
 }

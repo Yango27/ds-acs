@@ -1,15 +1,14 @@
 package baseNoStates;
 
 import baseNoStates.doorstates.DoorState;
-import baseNoStates.doorstates.Locked;
 import baseNoStates.doorstates.Unlocked;
 import baseNoStates.requests.RequestReader;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-//Door, a class that represents a single door, and stores their id, if they are closed, and a
-//state, it is used to process a request, this request is basically to do an action to the door
+// Door, a class that represents a single door, and stores their id, if they are closed, and a
+// state, it is used to process a request, this request is basically to do an action to the door
 public class Door {
   private final String id;
   private boolean closed; // physically
@@ -22,7 +21,7 @@ public class Door {
     this.doorState = new Unlocked(this);
   }
 
-  //RequestReader calls for the Door processRequest
+  // RequestReader calls for the Door processRequest
   public void processRequest(RequestReader request) {
     // it is the Door that process the request because the door has and knows
     // its state, and if it's closed or open
@@ -36,7 +35,7 @@ public class Door {
     request.setDoorStateName(getStateName());
   }
 
-  //given an action, sets the state of the door
+  // given an action, sets the state of the door
   private void doAction(String action) {
     switch (action) {
       case Actions.OPEN:
@@ -52,7 +51,7 @@ public class Door {
         doorState.unlock();
         break;
       case Actions.UNLOCK_SHORTLY:
-        doorState.shortly_unlocked();
+        doorState.unlockShortly();
         break;
       default:
         assert false : "Unknown action " + action;
@@ -60,7 +59,7 @@ public class Door {
     }
   }
 
-  public void setState(DoorState doorState){
+  public void setState(DoorState doorState) {
     this.doorState = doorState;
   }
 
@@ -83,9 +82,13 @@ public class Door {
   @Override
   public String toString() {
     return "Door{"
-        + ", id='" + id + '\''
-        + ", closed=" + closed
-        + ", state=" + getStateName()
+        + ", id='"
+        + id
+        + '\''
+        + ", closed="
+        + closed
+        + ", state="
+        + getStateName()
         + "}";
   }
 

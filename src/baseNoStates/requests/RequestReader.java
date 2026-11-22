@@ -4,21 +4,20 @@ import baseNoStates.DirectoryDoors;
 import baseNoStates.DirectoryUsers;
 import baseNoStates.Door;
 import baseNoStates.users.User;
+import baseNoStates.users.UserGroup;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-
-import baseNoStates.users.UserGroup;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-//RequestReader is used when the objective of the request is a single door
-//when we call the process method, it will see first if it's authorized
-//then it will pass the arguments to the door to process the request
+// RequestReader is used when the objective of the request is a single door
+// when we call the process method, it will see first if it's authorized
+// then it will pass the arguments to the door to process the request
 public class RequestReader implements Request {
   private final String credential; // who
-  private final String action;     // what
+  private final String action; // what
   private final LocalDateTime now; // when
-  private final String doorId;     // where
+  private final String doorId; // where
   private String userName;
   private boolean authorized;
   private final ArrayList<String> reasons; // why not authorized
@@ -49,22 +48,29 @@ public class RequestReader implements Request {
     reasons.add(reason);
   }
 
-
   @Override
   public String toString() {
     if (userName == null) {
       userName = "unknown";
     }
     return "Request{"
-            + "credential=" + credential
-            + ", userName=" + userName
-            + ", action=" + action
-            + ", now=" + now
-            + ", doorID=" + doorId
-            + ", closed=" + doorClosed
-            + ", authorized=" + authorized
-            + ", reasons=" + reasons
-            + "}";
+        + "credential="
+        + credential
+        + ", userName="
+        + userName
+        + ", action="
+        + action
+        + ", now="
+        + now
+        + ", doorID="
+        + doorId
+        + ", closed="
+        + doorClosed
+        + ", authorized="
+        + authorized
+        + ", reasons="
+        + reasons
+        + "}";
   }
 
   public JSONObject answerToJson() {
@@ -81,8 +87,10 @@ public class RequestReader implements Request {
   // see if the request is authorized and put this into the request, then send it to the door.
   // if authorized, perform the action.
   public void process() {
-    User user = DirectoryUsers.findUserByCredential(credential);
-    Door door = DirectoryDoors.findDoorById(doorId);
+    DirectoryUsers directoryUsers = DirectoryUsers.getInstance();
+    DirectoryDoors directoryDoors = DirectoryDoors.getInstance();
+    User user = directoryUsers.findUserByCredential(credential);
+    Door door = directoryDoors.findDoorById(doorId);
     assert door != null : "door " + doorId + " not found";
     authorize(user, door, action, now);
     // this sets the boolean authorize attribute of the request
@@ -92,40 +100,41 @@ public class RequestReader implements Request {
     doorClosed = door.isClosed();
   }
 
-  //if the request is authorized it will be reflected on the RequestReader object,
-  //also, this method adds the reason of why a request is not authorized (if there is)
+  // if the request is authorized it will be reflected on the RequestReader object,
+  // also, this method adds the reason of why a request is not authorized (if there is)
   private void authorize(User user, Door door, String action, LocalDateTime now) {
     if (user == null) {
       authorized = false;
       addReason("user doesn't exists");
     } else {
-      UserGroup userGroup = DirectoryUsers.userGroups.get(0); //init with the blank group
-      //look for which userGroup is our user in
-      for (UserGroup g : DirectoryUsers.userGroups){
-        if (g.isUserInGroup(user)){
+      userName = user.getName();
+      DirectoryUsers directoryUsers = DirectoryUsers.getInstance();
+      UserGroup userGroup = directoryUsers.userGroups.get(0); // init with the blank group
+      // look for which userGroup is our user in
+      for (UserGroup g : directoryUsers.userGroups) {
+        if (g.isUserInGroup(user)) {
           userGroup = g;
         }
       }
-      //we checked the three conditions for a request to be valid,
-      //it has to be done in the correct moment, in the correct place,
-      //and a valid action
+      // we checked the three conditions for a request to be valid,
+      // it has to be done in the correct moment, in the correct place,
+      // and a valid action
       boolean timeValid = userGroup.canSendRequests(now);
       boolean areaValid = userGroup.canBeInSpace(door.getId());
       boolean actionValid = userGroup.canDoAction(action);
 
-      //if something is not valid we add it to the reasons, in order to know
-      //why that request is not valid
-      if (!timeValid){
+      // if something is not valid we add it to the reasons, in order to know
+      // why that request is not valid
+      if (!timeValid) {
         reasons.add(new String("Time is not Valid"));
       }
-      if (!areaValid){
+      if (!areaValid) {
         reasons.add(new String("Area is not Valid"));
       }
-      if (!actionValid){
+      if (!actionValid) {
         reasons.add(new String("Action is not Valid"));
       }
       authorized = timeValid && areaValid && actionValid;
     }
   }
 }
-

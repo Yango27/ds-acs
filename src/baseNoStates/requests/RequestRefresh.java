@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-//RequestRefresh is used for refreshing the front-end with the actual back-end
-//basically, it will help to update the web with the actual states of the building
+// RequestRefresh is used for refreshing the front-end with the actual back-end
+// basically, it will help to update the web with the actual states of the building
 public class RequestRefresh implements Request {
   private final ArrayList<JSONObject> jsonsDoors = new ArrayList<>();
 
@@ -21,9 +21,7 @@ public class RequestRefresh implements Request {
 
   @Override
   public String toString() {
-    return "RequestRefresh{"
-        + jsonsDoors
-        + "}";
+    return "RequestRefresh{" + jsonsDoors + "}";
   }
 
   // Also this is used to paint the simulator when the page is loaded, and to display
@@ -33,7 +31,8 @@ public class RequestRefresh implements Request {
   // works or not, retrieves the state of all the doors so that the simulator can
   // repaint the readers
   public void process() {
-    for (Door door : DirectoryDoors.getAllDoors()) {
+    DirectoryDoors directoryDoors = DirectoryDoors.getInstance();
+    for (Door door : directoryDoors.getAllDoors()) {
       jsonsDoors.add(door.toJson());
     }
   }

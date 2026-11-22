@@ -1,26 +1,44 @@
 <configuration>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder><pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern></encoder>
+        <encoder><pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern></encoder>
     </appender>
 
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
         <file>logs/acs.log</file>
-        <encoder><pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern></encoder>
+        <append>false</append>
+        <encoder><pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern></encoder>
+    </appender>
+
+    <appender name="ACTIVITY" class="ch.qos.logback.core.FileAppender">
+        <file>logs/activity.log</file>
+        <append>false</append>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
     </appender>
 
     <!--  Milestone 1 -->
-    <!-- <logger name="baseNoStates.visitor" level="OFF"/> -->
+    <!--
+    <logger name="baseNoStates" level="DEBUG"/>
+    <logger name="baseNoStates.visitor" level="OFF"/>
+    -->
 
     <!-- Milestone 2 -->
     <!--
-    <logger name="baseNoStates"         level="OFF"/>
+    <logger name="baseNoStates" level="OFF"/>
     <logger name="baseNoStates.visitor" level="DEBUG"/>
+    <logger name="baseNoStates.clock_observers.Clock" level="DEBUG"/>
     -->
 
     <!-- EVERYTHING -->
     <logger name="baseNoStates"         level="DEBUG"/>
     <logger name="baseNoStates.clock_observers" level="INFO"/>
     <logger name="baseNoStates.WebServer"       level="INFO"/>
+
+
+    <logger name="activity" level="INFO" additivity="false">
+        <appender-ref ref="ACTIVITY"/>
+    </logger>
 
     <root level="INFO">
         <appender-ref ref="STDOUT"/>

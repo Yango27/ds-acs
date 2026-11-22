@@ -1,37 +1,50 @@
 package baseNoStates;
 
-import baseNoStates.doorstates.Locked;
 import baseNoStates.users.User;
 import baseNoStates.users.UserGroup;
 import baseNoStates.visitor.GetDoorsGivingAccess;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.swing.*;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-//class that creates users and users groups, and also assigns each users to its group
-//also provides useful methods related with users
+// class that creates users and users groups, and also assigns each users to its group
+// also provides useful methods related with users
+// this is also a Singleton pattern, basically, we just use one instance of DirectoryUsers
+// more information on Clock class (eager vs lazy initialization)
 public final class DirectoryUsers {
-  private static final ArrayList<User> users = new ArrayList<>();
-  public static ArrayList<UserGroup> userGroups = new ArrayList<>();
+  private final ArrayList<User> users = new ArrayList<>();
+  public ArrayList<UserGroup> userGroups = new ArrayList<>();
+  private static DirectoryUsers uniqueInstance;
   private static final Logger logger = LoggerFactory.getLogger(DirectoryUsers.class);
 
-  //adds in an array doors all the doors ID of an area given an area ID.
-  private static void addAreaDoors(ArrayList<String> doors, String areaId) {
-    //gets the area by ID, then, gets every door of that ID, and finally
-    //get the ID of those Doors
+  private DirectoryUsers() {
+    makeUsers();
+  }
+
+  public static synchronized DirectoryUsers getInstance() {
+    if (uniqueInstance == null) {
+      uniqueInstance = new DirectoryUsers();
+    }
+    return uniqueInstance;
+  }
+
+  // adds in an array doors all the doors ID of an area given an area ID.
+  private void addAreaDoors(ArrayList<String> doors, String areaId) {
+    // gets the area by ID, then, gets every door of that ID, and finally
+    // get the ID of those Doors
     GetDoorsGivingAccess visitor = new GetDoorsGivingAccess();
-    DirectoryAreas.findAreaById(areaId).acceptVisitor(visitor);
+    DirectoryAreas directoryAreas = DirectoryAreas.getInstance();
+    directoryAreas.findAreaById(areaId).acceptVisitor(visitor);
     Door[] doorsArea = visitor.getResultDoors();
     for (Door d : doorsArea) {
       doors.add(d.getId());
     }
   }
-  public static void makeUsers() {
+
+  public void makeUsers() {
     // users without any privilege, just to keep temporally users instead of deleting them,
     // this is to withdraw all permissions but still to keep user data to give back
     // permissions later
@@ -42,20 +55,19 @@ public final class DirectoryUsers {
     usersBlank.add(user1);
     usersBlank.add(user2);
 
-    UserGroup blank = new UserGroup(
+    final UserGroup blank =
+        new UserGroup(
             usersBlank,
-            new String[]{},
-            new DayOfWeek[]{},
+            new String[] {},
+            new DayOfWeek[] {},
             null,
             null,
             null,
             null,
-            new String[]{}
-    );
+            new String[] {});
 
     users.add(user1);
     users.add(user2);
-
 
     // employees:
     // Sep. 1 this year to Mar. 1 next year
@@ -72,36 +84,31 @@ public final class DirectoryUsers {
     usersEmployees.add(employee2);
 
     ArrayList<String> doorsEmployees = new ArrayList<>();
-    //add the doors ID of those areas valid for employees
+    // add the doors ID of those areas valid for employees
     addAreaDoors(doorsEmployees, "ground_floor");
     addAreaDoors(doorsEmployees, "floor1");
     addAreaDoors(doorsEmployees, "exterior");
     addAreaDoors(doorsEmployees, "stairs");
 
-    UserGroup employees = new UserGroup(
+    final UserGroup employees =
+        new UserGroup(
             usersEmployees,
-            new String[]{
-                    Actions.UNLOCK_SHORTLY,
-                    Actions.OPEN,
-                    Actions.CLOSE
-            },
-            new DayOfWeek[]{
-                    DayOfWeek.MONDAY,
-                    DayOfWeek.TUESDAY,
-                    DayOfWeek.WEDNESDAY,
-                    DayOfWeek.THURSDAY,
-                    DayOfWeek.FRIDAY
+            new String[] {Actions.UNLOCK_SHORTLY, Actions.OPEN, Actions.CLOSE},
+            new DayOfWeek[] {
+              DayOfWeek.MONDAY,
+              DayOfWeek.TUESDAY,
+              DayOfWeek.WEDNESDAY,
+              DayOfWeek.THURSDAY,
+              DayOfWeek.FRIDAY
             },
             LocalTime.of(9, 0),
             LocalTime.of(17, 0),
             LocalDate.of(2026, 9, 1),
             LocalDate.of(2027, 3, 1),
-            doorsEmployees.toArray(new String[0])
-    );
+            doorsEmployees.toArray(new String[0]));
 
     users.add(employee1);
     users.add(employee2);
-
 
     // managers:
     // Sep. 1 this year to Mar. 1 next year
@@ -117,34 +124,29 @@ public final class DirectoryUsers {
     usersManagers.add(manager2);
 
     ArrayList<String> doorsManagersAdmins = new ArrayList<>();
-    addAreaDoors(doorsManagersAdmins, "building"); //all the spaces
-    UserGroup managers = new UserGroup(
+    addAreaDoors(doorsManagersAdmins, "building"); // all the spaces
+    final UserGroup managers =
+        new UserGroup(
             usersManagers,
-            new String[]{
-                    Actions.OPEN,
-                    Actions.CLOSE,
-                    Actions.LOCK,
-                    Actions.UNLOCK,
-                    Actions.UNLOCK_SHORTLY
+            new String[] {
+              Actions.OPEN, Actions.CLOSE, Actions.LOCK, Actions.UNLOCK, Actions.UNLOCK_SHORTLY
             },
-            new DayOfWeek[]{
-                    DayOfWeek.MONDAY,
-                    DayOfWeek.TUESDAY,
-                    DayOfWeek.WEDNESDAY,
-                    DayOfWeek.THURSDAY,
-                    DayOfWeek.FRIDAY,
-                    DayOfWeek.SATURDAY
+            new DayOfWeek[] {
+              DayOfWeek.MONDAY,
+              DayOfWeek.TUESDAY,
+              DayOfWeek.WEDNESDAY,
+              DayOfWeek.THURSDAY,
+              DayOfWeek.FRIDAY,
+              DayOfWeek.SATURDAY
             },
             LocalTime.of(8, 0),
             LocalTime.of(20, 0),
             LocalDate.of(2026, 9, 1),
             LocalDate.of(2027, 3, 1),
-            doorsManagersAdmins.toArray(new String[0])
-    );
+            doorsManagersAdmins.toArray(new String[0]));
 
     users.add(manager1);
     users.add(manager2);
-
 
     // admin:
     // always = Jan. 1 this year to 2100
@@ -157,30 +159,26 @@ public final class DirectoryUsers {
     ArrayList<User> usersAdmin = new ArrayList<>();
     usersAdmin.add(admin);
 
-    UserGroup adminGroup = new UserGroup(
+    final UserGroup adminGroup =
+        new UserGroup(
             usersAdmin,
-            new String[]{
-                    Actions.OPEN,
-                    Actions.CLOSE,
-                    Actions.LOCK,
-                    Actions.UNLOCK,
-                    Actions.UNLOCK_SHORTLY
+            new String[] {
+              Actions.OPEN, Actions.CLOSE, Actions.LOCK, Actions.UNLOCK, Actions.UNLOCK_SHORTLY
             },
-            new DayOfWeek[]{
-                    DayOfWeek.MONDAY,
-                    DayOfWeek.TUESDAY,
-                    DayOfWeek.WEDNESDAY,
-                    DayOfWeek.THURSDAY,
-                    DayOfWeek.FRIDAY,
-                    DayOfWeek.SATURDAY,
-                    DayOfWeek.SUNDAY
+            new DayOfWeek[] {
+              DayOfWeek.MONDAY,
+              DayOfWeek.TUESDAY,
+              DayOfWeek.WEDNESDAY,
+              DayOfWeek.THURSDAY,
+              DayOfWeek.FRIDAY,
+              DayOfWeek.SATURDAY,
+              DayOfWeek.SUNDAY
             },
             LocalTime.of(0, 0),
             LocalTime.of(23, 59, 59),
             LocalDate.of(2026, 1, 1),
             LocalDate.of(2100, 1, 1),
-            doorsManagersAdmins.toArray(new String[0])
-    );
+            doorsManagersAdmins.toArray(new String[0]));
 
     users.add(admin);
     userGroups.add(blank);
@@ -189,7 +187,7 @@ public final class DirectoryUsers {
     userGroups.add(adminGroup);
   }
 
-  public static User findUserByCredential(String credential) {
+  public User findUserByCredential(String credential) {
     for (User user : users) {
       if (user.getCredential().equals(credential)) {
         return user;
@@ -198,5 +196,4 @@ public final class DirectoryUsers {
     logger.warn("user with credential {} not found", credential);
     return null; // otherwise we get a Java error
   }
-
 }

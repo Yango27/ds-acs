@@ -1,18 +1,30 @@
 package baseNoStates;
 
-import baseNoStates.doorstates.Locked;
+import java.util.ArrayList;
+import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
-//class used to create doors, and provides useful methods related with doors
+// class used to create doors, and provides useful methods related with doors
+// this is also a Singleton pattern, basically, we just use one instance of DirectoryDoors
+// more information on Clock class (eager vs lazy initialization)
 public final class DirectoryDoors {
-  private static ArrayList<Door> allDoors;
+  private ArrayList<Door> allDoors;
+  private static DirectoryDoors uniqueInstance;
   private static final Logger logger = LoggerFactory.getLogger(DirectoryDoors.class);
 
-  public static void makeDoors() {
+  private DirectoryDoors() {
+    makeDoors();
+  }
+
+  public static synchronized DirectoryDoors getInstance() {
+    if (uniqueInstance == null) {
+      uniqueInstance = new DirectoryDoors();
+    }
+    return uniqueInstance;
+  }
+
+  public void makeDoors() {
     // basement
     Door d1 = new Door("D1"); // exterior, parking
     Door d2 = new Door("D2"); // stairs, parking
@@ -31,7 +43,7 @@ public final class DirectoryDoors {
     allDoors = new ArrayList<>(Arrays.asList(d1, d2, d3, d4, d5, d6, d7, d8, d9));
   }
 
-  public static Door findDoorById(String id) {
+  public Door findDoorById(String id) {
     for (Door door : allDoors) {
       if (door.getId().equals(id)) {
         return door;
@@ -42,8 +54,7 @@ public final class DirectoryDoors {
   }
 
   // this is needed by RequestRefresh
-  public static ArrayList<Door> getAllDoors() {
+  public ArrayList<Door> getAllDoors() {
     return allDoors;
   }
-
 }

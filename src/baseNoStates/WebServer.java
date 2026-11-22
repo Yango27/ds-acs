@@ -4,9 +4,6 @@ import baseNoStates.requests.Request;
 import baseNoStates.requests.RequestArea;
 import baseNoStates.requests.RequestReader;
 import baseNoStates.requests.RequestRefresh;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -16,6 +13,8 @@ import java.net.Socket;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.StringTokenizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Based on
 // https://www.ssaurel.com/blog/create-a-simple-http-web-server-in-java
@@ -23,8 +22,9 @@ import java.util.StringTokenizer;
 public class WebServer {
   private static final int PORT = 8080; // port to listen connection
   private static final DateTimeFormatter formatter =
-          DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+      DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
   private static final Logger logger = LoggerFactory.getLogger(WebServer.class);
+  private static final Logger activityLogger = LoggerFactory.getLogger("activity");
 
   public WebServer() {
     try {
@@ -40,7 +40,6 @@ public class WebServer {
       logger.error("Server Connection error : {}", e.getMessage());
     }
   }
-
 
   private class SocketThread extends Thread {
     // as an inner class, SocketThread sees WebServer attributes
@@ -70,22 +69,23 @@ public class WebServer {
         logger.info("sockedthread : {}", input);
 
         StringTokenizer parse = new StringTokenizer(input);
-        String method = parse.nextToken().toUpperCase(); // we get the HTTP method of the client
+        // we get the HTTP method of the client
+        String method = parse.nextToken().toUpperCase();
         if (!method.equals("GET")) {
           logger.info("501 Not Implemented : {} method.", method);
         } else {
           // what comes after "localhost:8080"
           resource = parse.nextToken();
-          logger.info("input {}", input);
-          logger.info("method {}", method);
-          logger.info("resource {}", resource);
+          logger.debug("input {}", input);
+          logger.debug("method {}", method);
+          logger.debug("resource {}", resource);
 
           parse = new StringTokenizer(resource, "/[?]=&");
           int i = 0;
           String[] tokens = new String[20]; // more than the actual number of parameters
           while (parse.hasMoreTokens()) {
             tokens[i] = parse.nextToken();
-            logger.info("{} {}", i, tokens[i]);
+            logger.debug("{} {}", i, tokens[i]);
             i++;
           }
 
@@ -95,10 +95,12 @@ public class WebServer {
             String typeRequest = tokens[0];
             logger.info("created request {} {}", typeRequest, request);
             request.process();
+            activityLogger.info("Request {} {}", typeRequest, request);
             logger.info("processed request {} {}", typeRequest, request);
             // Make the answer as a JSON string, to be sent to the Javascript client
             String answer = makeJsonAnswer(request);
-            logger.info("answer\n{}", answer);
+            logger.debug("answer\n{}", answer);
+            activityLogger.info("answer\n{}", request.answerToJson());
             // Here we send the response to the client
             out.println(answer);
             out.flush(); // flush character output stream buffer
@@ -115,9 +117,9 @@ public class WebServer {
 
     private Request makeRequest(String[] tokens) {
       // always return request because it contains the answer for the Javascript client
-      logger.info("tokens : ");
+      logger.debug("tokens : ");
       for (String token : tokens) {
-        logger.info("{}, ", token);
+        logger.debug("{}, ", token);
       }
 
       Request request;
@@ -134,7 +136,7 @@ public class WebServer {
           request = makeRequestArea(tokens);
           break;
         case "get_children":
-          //TODO: this is to be implemented when programming the mobile app in Flutter
+          // TODO: this is to be implemented when programming the mobile app in Flutter
           // in order to navigate the hierarchy of partitions, spaces and doors
           assert false : "request get_children is not yet implemented";
           request = null;
@@ -182,7 +184,5 @@ public class WebServer {
       answer += request.answerToJson().toString();
       return answer;
     }
-
   }
-
 }

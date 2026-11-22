@@ -3,73 +3,90 @@ package baseNoStates;
 import baseNoStates.areas.Area;
 import baseNoStates.areas.Partition;
 import baseNoStates.areas.Space;
-import baseNoStates.doorstates.Locked;
 import baseNoStates.visitor.GetAreaById;
-import baseNoStates.visitor.Visitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-//class that creates areas, and provides useful methods related with areas
+// class that creates areas, and provides useful methods related with areas
+// this is also a Singleton pattern, basically, we just use one instance of DirectoryAreas
+// more information on Clock class (eager vs lazy initialization)
 public final class DirectoryAreas {
-    private static Area rootArea;
-    private static Door[] allDoors;
-    private static final Logger logger = LoggerFactory.getLogger(DirectoryAreas.class);
+  private static DirectoryAreas uniqueInstance;
+  private Area rootArea;
+  private Door[] allDoors;
+  private static final Logger logger = LoggerFactory.getLogger(DirectoryAreas.class);
 
-    public static void makeAreas(){
-        allDoors = DirectoryDoors.getAllDoors().toArray(new Door[0]); //get all doors
-        Door d1 = findDoorById("D1"); // exterior, parking
-        Door d2 = findDoorById("D2"); // stairs, parking
+  private DirectoryAreas() {
+    makeAreas();
+  }
 
-        // ground floor
-        Door d3 = findDoorById("D3"); // exterior, hall
-        Door d4 = findDoorById("D4"); // stairs, hall
-        Door d5 = findDoorById("D5"); // hall, room1
-        Door d6 = findDoorById("D6"); // hall, room2
-
-        // first floor
-        Door d7 = findDoorById("D7"); // stairs, corridor
-        Door d8 = findDoorById("D8"); // corridor, room3
-        Door d9 = findDoorById("D9"); // corridor, IT
-
-        // creating spaces, those areas with only doors and not other areas
-        Space parking = new Space(new Door[]{d1, d2}, "parking");
-        Space hall = new Space(new Door[]{d3, d4}, "hall");
-        Space room1 = new Space(new Door[]{d5}, "room1");
-        Space room2 = new Space(new Door[]{d6}, "room2");
-        Space room3 = new Space(new Door[]{d8}, "room3");
-        Space corridor = new Space(new Door[]{d7}, "corridor");
-        Space IT = new Space(new Door[]{d9}, "IT");
-
-        // creating partitions, those areas that includes other spaces
-        Partition basement = new Partition(new Space[]{parking}, "basement");
-        Partition ground_floor = new Partition(new Space[]{hall, room1, room2}, "ground_floor");
-        Partition floor1 = new Partition(new Space[]{room3, corridor, IT}, "floor1");
-        Partition stairs = new Partition(new Space[]{}, "stairs");
-        Partition exterior = new Partition(new Space[]{}, "exterior");
-
-        // creating the rootArea, basically all the building
-        rootArea = new Partition(new Partition[]{basement, ground_floor, floor1, stairs, exterior}, "building");
+  public static synchronized DirectoryAreas getInstance() {
+    if (uniqueInstance == null) {
+      uniqueInstance = new DirectoryAreas();
     }
-    public static Area findAreaById(String id){
-        GetAreaById visitor = new GetAreaById(id);
-        rootArea.acceptVisitor(visitor);
-        return visitor.getResultArea();
-    }
-    public static Door findDoorById(String id){
-        for (Door door : allDoors) {
-            if (door.getId().equals(id)) {
-                return door;
-            }
-        }
-        logger.warn("door with id {} not found", id);
-        return null;
-    }
+    return uniqueInstance;
+  }
 
-    public static Door[] getAllDoors() {
-        return allDoors;
-    }
+  public void makeAreas() {
+    DirectoryDoors directoryDoors = DirectoryDoors.getInstance();
+    allDoors = directoryDoors.getAllDoors().toArray(new Door[0]); // get all doors
+    Door d1 = findDoorById("D1"); // exterior, parking
+    Door d2 = findDoorById("D2"); // stairs, parking
 
-    public static Area getRootArea() {
-        return rootArea;
+    // ground floor
+    Door d3 = findDoorById("D3"); // exterior, hall
+    Door d4 = findDoorById("D4"); // stairs, hall
+    Door d5 = findDoorById("D5"); // hall, room1
+    Door d6 = findDoorById("D6"); // hall, room2
+
+    // first floor
+    Door d7 = findDoorById("D7"); // stairs, corridor
+    Door d8 = findDoorById("D8"); // corridor, room3
+    Door d9 = findDoorById("D9"); // corridor, IT
+
+    // creating spaces, those areas with only doors and not other areas
+    Space parking = new Space(new Door[] {d1, d2}, "parking");
+    Space hall = new Space(new Door[] {d3, d4}, "hall");
+    Space room1 = new Space(new Door[] {d5}, "room1");
+    Space room2 = new Space(new Door[] {d6}, "room2");
+    Space room3 = new Space(new Door[] {d8}, "room3");
+    Space corridor = new Space(new Door[] {d7}, "corridor");
+    Space it = new Space(new Door[] {d9}, "IT");
+
+    // creating partitions, those areas that includes other spaces
+    Partition basement = new Partition(new Space[] {parking}, "basement");
+    Partition groundFloor = new Partition(new Space[] {hall, room1, room2}, "ground_floor");
+    Partition floor1 = new Partition(new Space[] {room3, corridor, it}, "floor1");
+    Partition stairs = new Partition(new Space[] {}, "stairs");
+    Partition exterior = new Partition(new Space[] {}, "exterior");
+
+    // creating the rootArea, basically all the building
+    rootArea =
+        new Partition(
+            new Partition[] {basement, groundFloor, floor1, stairs, exterior}, "building");
+  }
+
+  public Area findAreaById(String id) {
+    GetAreaById visitor = new GetAreaById(id);
+    rootArea.acceptVisitor(visitor);
+    return visitor.getResultArea();
+  }
+
+  public Door findDoorById(String id) {
+    for (Door door : allDoors) {
+      if (door.getId().equals(id)) {
+        return door;
+      }
     }
+    logger.warn("door with id {} not found", id);
+    return null;
+  }
+
+  public Door[] getAllDoors() {
+    return allDoors;
+  }
+
+  public Area getRootArea() {
+    return rootArea;
+  }
 }
